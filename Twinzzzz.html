@@ -1,0 +1,471 @@
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>
+   Twinzz - Synchronized Music Listening
+  </title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&amp;display=swap" rel="stylesheet"/>
+  <style>
+   .hidden { display: none; }
+  </style>
+ </head>
+ <body class="bg-gray-900 text-white font-roboto min-h-screen flex flex-col">
+  <!-- Navbar -->
+  <nav class="bg-gray-800 p-4">
+   <div class="container mx-auto flex justify-between items-center">
+    <a class="text-2xl font-bold" href="#">
+     Twinzz
+    </a>
+    <div class="flex-grow flex justify-center">
+     <div class="relative w-full max-w-md">
+      <input class="bg-gray-700 text-white rounded-full pl-4 pr-10 py-2 w-full focus:outline-none" id="search-input" placeholder="Search for tracks..." type="text" disabled/>
+      <div class="absolute right-3 top-2 text-gray-400">
+       <i class="fas fa-search"></i>
+      </div>
+     </div>
+    </div>
+   </div>
+  </nav>
+
+  <!-- Room Section -->
+  <section class="bg-gray-700 p-8 mt-4">
+   <div class="container mx-auto text-center max-w-md">
+    <h2 class="text-3xl font-bold mb-6">Create or Join a Listening Room</h2>
+    <div id="room-setup" class="space-y-4">
+     <input id="room-input" type="text" placeholder="Enter Room ID or leave blank to create new" class="w-full px-4 py-2 rounded-md text-black" />
+     <button id="join-room-button" class="bg-green-500 px-6 py-2 rounded-full hover:bg-green-600 font-semibold w-full">
+      Join Room / Create Room
+     </button>
+    </div>
+    <div id="room-info" class="hidden mt-6 p-4 rounded-md bg-gray-800">
+     <p class="mb-2">You are in room: <span id="current-room" class="font-semibold"></span></p>
+     <button id="leave-room-button" class="bg-red-600 px-4 py-2 rounded-full hover:bg-red-700">Leave Room</button>
+    </div>
+   </div>
+  </section>
+
+  <!-- Search Results -->
+  <section class="bg-gray-700 p-8 mt-4 hidden" id="search-results">
+   <div class="container mx-auto">
+    <h2 class="text-2xl font-bold mb-4">
+     Search Results
+    </h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="results-container">
+    </div>
+   </div>
+  </section>
+
+  <!-- Music Player Page -->
+  <section class="bg-gray-700 p-8 mt-4 hidden" id="music-player-section">
+   <div class="container mx-auto">
+    <h2 class="text-2xl font-bold mb-4">
+     Now Playing <span id="room-tag" class="text-green-400 font-semibold"></span>
+    </h2>
+    <div class="flex flex-col items-center">
+     <img alt="Album cover" class="w-48 h-48 object-cover rounded-lg mb-4" id="album-cover" src="https://placehold.co/300x300"/>
+     <h3 class="text-xl font-bold" id="song-title">
+      Song Title
+     </h3>
+     <p class="text-gray-400 mb-4" id="artist-name">
+      Artist Name
+     </p>
+     <div class="flex items-center space-x-4">
+      <button class="hover:text-gray-400" id="prev-button">
+       <i class="fas fa-backward"></i>
+      </button>
+      <button class="hover:text-gray-400" id="play-button">
+       <i class="fas fa-play"></i>
+      </button>
+      <button class="hover:text-gray-400" id="next-button">
+       <i class="fas fa-forward"></i>
+      </button>
+     </div>
+     <div class="flex items-center space-x-4 mt-4 w-full max-w-md">
+      <span class="text-gray-400">
+       0:00
+      </span>
+      <input class="w-full" type="range" id="progress-bar" min="0" max="100" value="0"/>
+      <span class="text-gray-400" id="duration-label">
+       3:45
+      </span>
+     </div>
+     <div class="flex items-center space-x-4 mt-4">
+      <button class="hover:text-gray-400" id="volume-down-button">
+       <i class="fas fa-volume-down"></i>
+      </button>
+      <input class="w-24" type="range" id="volume-slider" min="0" max="100" value="50"/>
+      <button class="hover:text-gray-400" id="volume-up-button">
+       <i class="fas fa-volume-up"></i>
+      </button>
+     </div>
+     <button class="bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 mt-4" id="invite-button">
+      Invite a Friend
+     </button>
+    </div>
+   </div>
+  </section>
+
+  <!-- Embedded Spotify Playlist -->
+  <section class="bg-gray-700 p-8 mt-4 hidden" id="featured-playlist-section">
+   <div class="container mx-auto">
+    <h2 class="text-2xl font-bold mb-4">
+     Featured Playlist
+    </h2>
+    <div class="flex justify-center">
+     <iframe allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" allowfullscreen="" frameborder="0" height="352" loading="lazy" src="https://open.spotify.com/embed/playlist/5DPuV6bw3xdxSenM5s8vtO?utm_source=generator" style="border-radius:12px" width="100%">
+     </iframe>
+    </div>
+   </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 p-4 mt-auto">
+   <div class="container mx-auto text-center">
+    <p>
+     © 2023 Twinzz. All rights reserved.
+    </p>
+    <div class="flex justify-center space-x-4 mt-4">
+     <a class="hover:text-gray-400" href="#">
+      <i class="fab fa-facebook"></i>
+     </a>
+     <a class="hover:text-gray-400" href="#">
+      <i class="fab fa-twitter"></i>
+     </a>
+     <a class="hover:text-gray-400" href="#">
+      <i class="fab fa-instagram"></i>
+     </a>
+     <a class="hover:text-gray-400" href="#">
+      <i class="fab fa-youtube"></i>
+     </a>
+    </div>
+   </div>
+  </footer>
+
+  <script>
+   // Spotify API credentials - Replace these with your real credentials
+   const clientId = '1a5cd74bb62b450ab7108b4b9e34c8a2';
+   const redirectUri = 'https://open.spotify.com/embed/twinzz';// Authenticate user with Spotify on clicking join/create room
+   function authenticateSpotify() {
+     const authUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=token&redirect_uri=${encodeURIComponent(redirectUri)}&scope=user-read-private user-read-email streaming user-read-playback-state user-modify-playback-state`;
+     window.location.href = authUrl;
+   }
+
+   // Generate random room ID
+   function generateRoomId(length = 6) {
+     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+     let result = '';
+     for (let i = 0; i < length; i++) {
+       result += chars.charAt(Math.floor(Math.random() * chars.length));
+     }
+     return result;
+   }
+
+   // Update UI states for room joined
+   function enterRoom(id) {
+     if (!id) {
+       alert('Room ID is required.');
+       return;
+     }
+     roomId = id;
+     localStorage.setItem('twinzz_room_id', roomId);
+     document.getElementById('room-input').value = '';
+     document.getElementById('room-setup').classList.add('hidden');
+     document.getElementById('room-info').classList.remove('hidden');
+     document.getElementById('current-room').textContent = roomId;
+     document.getElementById('search-input').disabled = false;
+     document.getElementById('search-results').classList.remove('hidden');
+     document.getElementById('music-player-section').classList.remove('hidden');
+     document.getElementById('featured-playlist-section').classList.remove('hidden');
+     updateRoomTag();
+   }
+
+   // Join or create room when button clicked
+   document.getElementById('join-room-button').addEventListener('click', () => {
+     if (!accessToken) {
+       authenticateSpotify();
+       return;
+     }
+     let inputRoom = document.getElementById('room-input').value.trim().toUpperCase();
+     if (inputRoom === '') {
+       inputRoom = generateRoomId();
+     }
+     enterRoom(inputRoom);
+   });
+
+   let accessToken = '';
+   let currentTrackUri = null;
+   let isPlaying = false;
+   let roomId = null;
+   let playbackPosition = 0;
+
+   // BroadcastChannel for simple sync between tabs (demo purpose)
+   let broadcast = null;
+   if ('BroadcastChannel' in window) {
+    broadcast = new BroadcastChannel('twinzz-room-sync');
+   }
+
+   // Authenticate user with Spotify on clicking join/create rooms
+   function authenticateSpotify() {
+    const authUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=token&redirect_uri=${encodeURIComponent(redirectUri)}&scope=user-read-private user-read-email streaming user-read-playback-state user-modify-playback-state`;
+    window.location.href = authUrl;
+   }
+
+   // Generate random room ID
+   function generateRoomId(length = 6) {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for(let i=0; i<length; i++) {
+     result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+   }
+
+   // Update UI states for room joined
+   function enterRoom(id) {
+    roomId = id;
+    localStorage.setItem('twinzz_room_id', roomId);
+    document.getElementById('room-input').value = '';
+    document.getElementById('room-setup').classList.add('hidden');
+    document.getElementById('room-info').classList.remove('hidden');
+    document.getElementById('current-room').textContent = roomId;
+    document.getElementById('search-input').disabled = false;
+    document.getElementById('search-results').classList.remove('hidden');
+    document.getElementById('music-player-section').classList.remove('hidden');
+    document.getElementById('featured-playlist-section').classList.remove('hidden');
+    updateRoomTag();
+   }
+
+   // Leave room
+   function leaveRoom() {
+    roomId = null;
+    localStorage.removeItem('twinzz_room_id');
+    document.getElementById('room-setup').classList.remove('hidden');
+    document.getElementById('room-info').classList.add('hidden');
+    document.getElementById('search-input').disabled = true;
+    document.getElementById('search-results').classList.add('hidden');
+    document.getElementById('music-player-section').classList.add('hidden');
+    document.getElementById('featured-playlist-section').classList.add('hidden');
+    currentTrackUri = null;
+    isPlaying = false;
+    playbackPosition = 0;
+    clearNowPlaying();
+   }
+
+   // Update room tag on player section
+   function updateRoomTag() {
+    const tag = document.getElementById('room-tag');
+    if(roomId) {
+     tag.textContent = `(Room: ${roomId})`;
+    } else {
+     tag.textContent = '';
+    }
+   }
+
+   // Clear now playing info
+   function clearNowPlaying() {
+    document.getElementById('album-cover').src = 'https://placehold.co/300x300';
+    document.getElementById('song-title').textContent = 'Song Title';
+    document.getElementById('artist-name').textContent = 'Artist Name';
+    document.getElementById('play-button').innerHTML = '<i class="fas fa-play"></i>';
+   }
+
+   // On page load - check for token and room stored in localStorage
+   window.addEventListener('load', () => {
+    // Get token from URL hash or localStorage
+    const hash = window.location.hash.substring(1).split('&').reduce((acc, item) => {
+     if(item) {
+      const parts = item.split('=');
+      acc[parts[0]] = decodeURIComponent(parts[1]);
+     }
+     return acc;
+    }, {});
+    if(hash.access_token) {
+     accessToken = hash.access_token;
+     window.history.replaceState(null, null, ' ');
+     document.getElementById('search-input').disabled = true; // temp disable until room join
+     // Check if room saved
+     const savedRoom = localStorage.getItem('twinzz_room_id');
+     if(savedRoom) {
+      enterRoom(savedRoom);
+     }
+    } else {
+     document.getElementById('search-input').disabled = true;
+    }
+   });
+
+   // Join or create room when button clicked
+   document.getElementById('join-room-button').addEventListener('click', () => {
+    if (!accessToken) {
+     authenticateSpotify();
+     return;
+    }
+    let inputRoom = document.getElementById('room-input').value.trim().toUpperCase();
+    if(inputRoom === '') {
+     inputRoom = generateRoomId();
+    }
+    enterRoom(inputRoom);
+   });
+
+   // Leave room
+   document.getElementById('leave-room-button').addEventListener('click', () => {
+    leaveRoom();
+   });
+
+   // Search functionality
+   document.getElementById('search-input').addEventListener('input', async (event) => {
+    const query = event.target.value;
+    if (!roomId) return; // Must be in room to search
+    if (query.length > 2) {
+     const response = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=20`, {
+      headers: {
+       'Authorization': `Bearer ${accessToken}`
+      }
+     });
+     const data = await response.json();
+     const resultsContainer = document.getElementById('results-container');
+     resultsContainer.innerHTML = '';
+     if(data.tracks && data.tracks.items){
+      data.tracks.items.forEach(track => {
+       const trackElement = document.createElement('div');
+       trackElement.classList.add('bg-gray-800', 'p-4', 'rounded-lg', 'cursor-pointer', 'hover:bg-gray-600');
+       trackElement.innerHTML = `
+         <img src="${track.album.images[0]?.url}" alt="Album cover of ${track.name}" class="w-full h-48 object-cover rounded-lg mb-4"/>
+         <h3 class="text-xl font-bold">${track.name}</h3>
+         <p class="text-gray-400">${track.artists.map(artist => artist.name).join(', ')}</p>
+       `;
+       trackElement.addEventListener('click', () => {
+        playTrack(track.uri, true);
+        updateNowPlayingUI(track);
+       });
+       resultsContainer.appendChild(trackElement);
+      });
+     }
+    }
+   });
+
+   // Update now playing UI elements
+   function updateNowPlayingUI(track) {
+    document.getElementById('album-cover').src = track.album.images[0]?.url || 'https://placehold.co/300x300';
+    document.getElementById('song-title').textContent = track.name;
+    document.getElementById('artist-name').textContent = track.artists.map(artist => artist.name).join(', ');
+   }
+
+   // Play track on Spotify and broadcast to room
+   async function playTrack(uri, broadcastFlag = false) {
+    if(!accessToken) {
+     alert('Please login to Spotify first.');
+     return;
+    }
+    try {
+     await fetch(`https://api.spotify.com/v1/me/player/play`, {
+      method: 'PUT',
+      headers: {
+       'Authorization': `Bearer ${accessToken}`,
+       'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ uris: [uri] })
+     });
+     currentTrackUri = uri;
+     isPlaying = true;
+     document.getElementById('play-button').innerHTML = '<i class="fas fa-pause"></i>';
+     if(broadcastFlag && roomId && broadcast) {
+      broadcast.postMessage({ type: 'play', uri, room: roomId });
+     }
+    } catch(e) {
+     console.error('Error playing track:', e);
+    }
+   }
+
+   // Pause playback function - Spotify API does not have a pure pause endpoint for web playback SDK
+   async function pauseTrack(broadcastFlag = false) {
+    if(!accessToken) return;
+    try {
+     await fetch(`https://api.spotify.com/v1/me/player/pause`, {
+      method: 'PUT',
+      headers: {
+       'Authorization': `Bearer ${accessToken}`
+      }
+     });
+     isPlaying = false;
+     document.getElementById('play-button').innerHTML = '<i class="fas fa-play"></i>';
+     if(broadcastFlag && roomId && broadcast) {
+      broadcast.postMessage({ type: 'pause', room: roomId });
+     }
+    } catch(e) {
+     console.error('Error pausing track:', e);
+    }
+   }
+
+   // Play/pause toggle click handler
+   document.getElementById('play-button').addEventListener('click', () => {
+    if(!accessToken) {
+     alert('Please login to Spotify first.');
+     return;
+    }
+    if (isPlaying) {
+     pauseTrack(true);
+    } else if(currentTrackUri) {
+     playTrack(currentTrackUri, true);
+    }
+   });
+
+   // Invite friend button updates URL with room ID and access token
+   document.getElementById('invite-button').addEventListener('click', () => {
+    if(!roomId || !accessToken){
+     alert('Join a room and login first to invite friends.');
+     return;
+    }
+    const currentUrl = window.location.href.split('#')[0];
+    const inviteUrl = `${currentUrl}#access_token=${accessToken}&room_id=${roomId}`;
+    prompt('Copy this link to invite a friend:', inviteUrl);
+   });
+
+   // Listen to BroadcastChannel messages for sync across tabs
+   if (broadcast) {
+    broadcast.onmessage = (event) => {
+     const msg = event.data;
+     if (!msg || msg.room !== roomId) return; // ignore if not same room
+
+     if(msg.type === 'play') {
+      if(msg.uri && msg.uri !== currentTrackUri){
+       // Sync to this track
+       playTrack(msg.uri, false);
+       // Update UI
+       document.getElementById('search-input').value = '';
+       clearNowPlaying();
+       currentTrackUri = msg.uri;
+       isPlaying = true;
+       document.getElementById('play-button').innerHTML = '<i class="fas fa-pause"></i>';
+      }
+     }
+     else if(msg.type === 'pause') {
+      pauseTrack(false);
+     }
+    };
+   }
+
+   // On page load, try to load room_id from URL hash if any
+   window.addEventListener('load', () => {
+    const hashParams = window.location.hash.substring(1).split('&').reduce((acc, item) => {
+     if(item){
+      const parts = item.split('=');
+      acc[parts[0]] = decodeURIComponent(parts[1]);
+     }
+     return acc;
+    }, {});
+    if(hashParams.access_token) {
+     accessToken = hashParams.access_token;
+     window.history.replaceState(null, null, ' ');
+    }
+    if(hashParams.room_id) {
+     enterRoom(hashParams.room_id.toUpperCase());
+    }
+   });
+
+  </script>
+ </body>
+</html>
+
